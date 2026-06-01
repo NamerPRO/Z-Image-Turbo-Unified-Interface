@@ -27,9 +27,6 @@ ENV/
 
 # Generated images and outputs
 outputs/
-*.png
-*.jpg
-*.jpeg
 
 # Models (large files that should be downloaded separately)
 models/
