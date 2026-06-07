@@ -104,21 +104,21 @@ $choice = Read-Host
 switch ($choice) {
     "1" {
         $moshort = "4GB"
-        $model_name = "Qwen3-4b-Z-Image-Turbo-AbliteratedV1.Q4_0.gguf"
+        $model_name = "Z-Image-AbliteratedV1.Q4_K_S.gguf"
         $model_url = "https://huggingface.co/BennyDaBall/Qwen3-4b-Z-Image-Turbo-AbliteratedV1/blob/main/Z-Image-AbliteratedV1.Q4_K_S.gguf"
 		$zimage_name = "z_image_turbo-Q4_K.gguf"
 		$zimage_url = "https://huggingface.co/xtianj/Z-Image-Turbo-GGUF/blob/main/z_image_turbo-Q4_K.gguf"
 	}
     "2" {
         $moshort = "6-8GB"
-        $model_name = "Qwen3-4b-Z-Image-Turbo-AbliteratedV1.Q6_0.gguf"
+        $model_name = "Z-Image-AbliteratedV1.Q6_K.gguf"
         $model_url = "https://huggingface.co/BennyDaBall/Qwen3-4b-Z-Image-Turbo-AbliteratedV1/blob/main/Z-Image-AbliteratedV1.Q6_K.gguf"
 		$zimage_name = "z_image_turbo-Q6_K.gguf"
 		$zimage_url = "https://huggingface.co/xtianj/Z-Image-Turbo-GGUF/blob/main/z_image_turbo-Q6_K.gguf"
 	}
     "3" {
         $moshort = "10+GB"
-        $model_name = "Qwen3-4b-Z-Image-Turbo-AbliteratedV1.Q8_0.gguf"
+        $model_name = "Z-Image-AbliteratedV1.Q8_0.gguf"
         $model_url = "https://huggingface.co/BennyDaBall/Qwen3-4b-Z-Image-Turbo-AbliteratedV1/blob/main/Z-Image-AbliteratedV1.Q8_0.gguf"
 		$zimage_name = "z_image_turbo-Q8_0.gguf"
 		$zimage_url = "https://huggingface.co/xtianj/Z-Image-Turbo-GGUF/blob/main/z_image_turbo-Q8_0.gguf"
@@ -210,16 +210,23 @@ if ((Test-Path $sdCliExe)) {
     Write-Host "Please download from the official stable-diffusion.cpp releases:" -ForegroundColor Yellow
     Write-Host "    https://github.com/leejet/stable-diffusion.cpp/releases" -ForegroundColor Yellow
 	if ($backend -eq "cuda") {
-		Write-Host "You should search something close to sd-master-*******-bin-win-cuda12-x64.zip" -ForegroundColor Yellow
-		Write-Host "Make sure word 'cuda' exists in file name you download!" -ForegroundColor Yellow
+		Write-Host "Download: sd-master-*******-bin-win-cuda12-x64.zip" -ForegroundColor Yellow
 	} elseif ($backend -eq "cpu") {
-		Write-Host "You should search something close to sd-master-*******-bin-win-avx2-x64.zip (works for 99% of users)" -ForegroundColor Yellow
-		Write-Host "If it doesn't work, try sd-master-*******-bin-win-avx512-x64.zip (for newer CPUs with AVX-512 support)" -ForegroundColor Yellow
-		Write-Host "If it still doesn't work, try sd-master-*******-bin-win-avx-x64.zip (older CPUs without AVX2)" -ForegroundColor Yellow
-		Write-Host "Last resort: sd-master-*******-bin-win-noavx-x64.zip (very old CPUs, pre-2011)" -ForegroundColor Yellow
+		$cpu = Get-CimInstance Win32_Processor
+		if ($cpu.InstructionSet -contains 9) {
+			Write-Host "Your CPU supports AVX-512. Download: sd-master-*******-bin-win-avx512-x64.zip" -ForegroundColor Yellow
+		} elseif ($cpu.InstructionSet -contains 8) {
+			Write-Host "Your CPU supports AVX2. Download: sd-master-*******-bin-win-avx2-x64.zip" -ForegroundColor Yellow
+		} else {
+			Write-Host "Older CPU detected. Try: sd-master-*******-bin-win-avx-x64.zip. If it doesnt work use noavx-x64.zip" -ForegroundColor Yellow
+		}
 	} elseif ($backend -eq "directml") {
-		Write-Host "You should search something close to sd-master-*******-bin-win-rocm-7.1.1-x64.zip" -ForegroundColor Yellow
-		Write-Host "or sd-master-*******-bin-win-rocm-7.13.0-x64.zip depending on your ROCm version compatibility" -ForegroundColor Yellow
+		$gpuName = (Get-CimInstance Win32_VideoController | Where-Object { $_.Name -match "AMD|Radeon" }).Name
+		if ($gpuName -match 'RX\s*[679]\d{3}') {
+			Write-Host "Download: sd-master-*******-bin-win-rocm-7.13.0-x64.zip" -ForegroundColor Yellow
+		} else {
+			Write-Host "Download: sd-master-*******-bin-win-rocm-7.1.1-x64.zip" -ForegroundColor Yellow
+		}
 	}
 	Write-Host ""
 	if ($backend -eq "cuda") {
@@ -351,7 +358,7 @@ if (Test-Path $llmPath) {
 	Write-Host "LLM successfully found!" -ForegroundColor Green
 }
 
-$mmprojName = "Qwen3-VL-8B-Instruct-abliterated-v2.mmproj-f16.gguf"
+$mmprojName = "Qwen3-VL-8B-Instruct-abliterated-v2.0.mmproj-f16.gguf"
 $mmprojUrl = "https://huggingface.co/mradermacher/Qwen3-VL-8B-Instruct-abliterated-v2.0-GGUF/blob/main/Qwen3-VL-8B-Instruct-abliterated-v2.0.mmproj-f16.gguf"
 $mmprojPath = Join-Path $llmDir $mmprojName
 
@@ -468,7 +475,7 @@ $content = $content -replace '(?<=LLM_ENCODER_PATH = str\(ROOT / "models" / "llm
 $content = $content -replace '(?<=DIFFUSION_MODEL_PATH = str\(ROOT / "models" / "zimage" / ")[^"]+(?="\))', $zimage_name
 $content = $content -replace '(?<=--backend",\s*")[^"]+(?=")', $backend
 $content = $content -replace '(?<=--rng",\s*")[^"]+(?=")', $rng
-$content = $content -replace 'n_gpu_layers=\s*\K\d+', $n_gpu_layers
+$content = $content -replace '(?<=n_gpu_layers=\s*)\d+', $n_gpu_layers
 [System.IO.File]::WriteAllText((Resolve-Path "./run_gradio_ui.py"), $content, [System.Text.UTF8Encoding]::new($false))
 
 Write-Host "`nrun_gradio_ui.py successfully updated for your configuration!`n" -ForegroundColor Green
@@ -483,7 +490,7 @@ if ($choice.ToUpper() -eq "Y") {
 
 	$batPath = Join-Path $workingDir "run_gradio_ui.bat"
 	$batContent = '@echo off
-cd /d "C:\Distribs\llm-models\123\Z-Image-Turbo-Unified-Interface"
+cd /d ' + $workingDir + '
 title Gradio UI Launcher
 echo ========================================
 echo    Gradio UI Launcher

@@ -34,9 +34,9 @@ except ImportError:
 ROOT = Path(__file__).parent
 
 # Пути к моделям
-MMPROJ_PATH = str(ROOT / "models" / "llm" / "Qwen3-VL-8B-Instruct-abliterated-v2.mmproj-f16.gguf")
+MMPROJ_PATH = str(ROOT / "models" / "llm" / "Qwen3-VL-8B-Instruct-abliterated-v2.0.mmproj-f16.gguf")
 VL_LLM_PATH = str(ROOT / "models" / "llm" / "Qwen3VL-8B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf")
-LLM_ENCODER_PATH = str(ROOT / "models" / "llm" / "Qwen3-4b-Z-Image-Turbo-AbliteratedV1.Q6_0.gguf")
+LLM_ENCODER_PATH = str(ROOT / "models" / "llm" / "Z-Image-AbliteratedV1.Q6_K.gguf")
 DIFFUSION_MODEL_PATH = str(ROOT / "models" / "zimage" / "z_image_turbo-Q6_K.gguf")
 DEFAULT_VAE_PATH = str(ROOT / "models" / "vae" / "ae.safetensors")
 
@@ -267,7 +267,7 @@ def initialize_vl_llm(llm_path):
                 model_path=llm_path,
                 chat_handler=chat_handler,
                 # n_gpu_layers=-1,
-                n_gpu_layers=0, 
+                n_gpu_layers=-1, 
                 n_ctx=262144,
                 verbose=False, # Включаем verbose для логов
             )
@@ -508,7 +508,7 @@ def gen_image(prompt, negative_prompt, width, height, steps, seed, cfg_scale, va
         "-o", out_file,
         "--seed", str(seed),
         "--rng", "cuda",
-        "--backend", "cpu", 
+        "--backend", "cuda", 
     ]
 
     if input_image is not None:
