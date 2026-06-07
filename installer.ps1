@@ -136,7 +136,7 @@ Write-Host ''
 $backend = "cpu"
 $rng = "cpu"
 $n_gpu_layers = 0
-Write-Host 'Run all computations via cpu (C) [works everywhere but slow], cuda (CU) [for nvidia], directml (D) [for amd/intel]? [C/CU/D]' -ForegroundColor Yellow -NoNewline
+Write-Host 'Run all computations via cpu (C) [works everywhere but slow], cuda (CU) [for nvidia], directml (D) [for amd/intel]? [C/CU/D] ' -ForegroundColor Yellow -NoNewline
 $choice = Read-Host
 switch ($choice.ToUpper()) {
 	'C' {
@@ -159,6 +159,7 @@ switch ($choice.ToUpper()) {
 		exit 1
 	}
 }
+Write-Host "Successfully selected $backend" -ForegroundColor Green
 
 # 3. Create venv (if missing)
 $venv = Join-Path $root "venv"
