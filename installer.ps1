@@ -211,12 +211,12 @@ if ((Test-Path $sdCliExe)) {
 	if ($backend -eq "cuda") {
 		Write-Host "You should search something close to sd-master-*******-bin-win-cuda12-x64.zip" -ForegroundColor Yellow
 		Write-Host "Make sure word 'cuda' exists in file name you download!" -ForegroundColor Yellow
-	} else if ($backend -eq "cpu") {
+	} elseif ($backend -eq "cpu") {
 		Write-Host "You should search something close to sd-master-*******-bin-win-avx2-x64.zip (works for 99% of users)" -ForegroundColor Yellow
 		Write-Host "If it doesn't work, try sd-master-*******-bin-win-avx512-x64.zip (for newer CPUs with AVX-512 support)" -ForegroundColor Yellow
 		Write-Host "If it still doesn't work, try sd-master-*******-bin-win-avx-x64.zip (older CPUs without AVX2)" -ForegroundColor Yellow
 		Write-Host "Last resort: sd-master-*******-bin-win-noavx-x64.zip (very old CPUs, pre-2011)" -ForegroundColor Yellow
-	} else if ($backend -eq "directml") {
+	} elseif ($backend -eq "directml") {
 		Write-Host "You should search something close to sd-master-*******-bin-win-rocm-7.1.1-x64.zip" -ForegroundColor Yellow
 		Write-Host "or sd-master-*******-bin-win-rocm-7.13.0-x64.zip depending on your ROCm version compatibility" -ForegroundColor Yellow
 	}
